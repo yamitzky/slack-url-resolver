@@ -1,0 +1,15 @@
+version: '3'
+services:
+  app:
+    image: yamitzky/url-resolver
+    build: .
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - SLACK_BOT_TOKEN
+      - TWITTER_CONSUMER_KEY
+      - TWITTER_CONSUMER_SECRET
+      - GITLAB_TOKEN
+      - GITLAB_DOMAIN
+      - QIITA_TOKEN
+      - QIITA_DOMAIN
