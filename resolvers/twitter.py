@@ -18,6 +18,7 @@ def resolve(client, event):
     for screen_name, status_id in ids:
         status = api.get_status(id=status_id)
         attachment = {
+            'color': '#55acee',
             'text': status.text,
             'author_name': f'{status.user.name} @{status.user.screen_name}',
             'author_link': f'https://twitter.com/{status.user.screen_name}',

@@ -18,6 +18,7 @@ def resolve(client, event):
             'chat.postMessage',
             channel=event['channel'],
             attachments=[{
+                'color': '#79b74a',
                 'title': item['title'],
                 'title_link': item['url'],
                 'text': item['body'],
