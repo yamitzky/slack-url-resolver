@@ -12,9 +12,9 @@ def resolve(client, event):
     GITLAB_DOMAIN = os.environ['GITLAB_DOMAIN']
     ids = re.findall(f'{GITLAB_DOMAIN}/(.+)/(issues|merge_requests)/(\d+)', event['text'])
     for project, issue_type, issue_id in ids:
-        project = urllib.parse.quote_plus(project)
+        project_id = urllib.parse.quote_plus(project)
         issue = requests.get(
-            f'{GITLAB_DOMAIN}/api/v4/projects/{project}/{issue_type}/{issue_id}',
+            f'{GITLAB_DOMAIN}/api/v4/projects/{project_id}/{issue_type}/{issue_id}',
             headers={'PRIVATE-TOKEN': os.environ['GITLAB_TOKEN']}
         ).json()
         client.api_call(
@@ -22,7 +22,7 @@ def resolve(client, event):
             channel=event['channel'],
             attachments=[{
                 'color': '#eb763d',
-                'title': issue['title'],
+                'title': f"[{project}]{issue['title']}",
                 'title_link': issue['web_url'],
                 'text': issue['description'],
                 'author_name': issue['author']['name'],
