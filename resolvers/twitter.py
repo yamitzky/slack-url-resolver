@@ -3,10 +3,7 @@ import re
 
 import tweepy
 
-from . import skip_bot_message
 
-
-@skip_bot_message
 def resolve(post_message, event):
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
