@@ -10,12 +10,33 @@ from slackclient import SlackClient
 logger = getLogger(__name__)
 
 
+def wrap_resolver(resolver):
+    def wrapper(client, event):
+        def post_message(**message):
+            payload = {k: v for k, v in message.items()}
+            if 'channel' not in message:
+                payload['channel'] = event['channel']
+                if 'thread_ts' not in message and 'thread_ts' in event:
+                    payload['thread_ts'] = event['thread_ts']
+            client.api_call(
+                'chat.postMessage',
+                **payload
+            )
+
+        try:
+            resolver.resolve(post_message, event)
+        except Exception as e:
+            logger.exception(e)
+            client.rtm_send_message(event['channel'], str(e))
+    return wrapper
+
+
 def main():
     if 'RESOLVERS' in os.environ:
         resolvers = os.environ['RESOLVERS'].split(',')
     else:
         resolvers = ['resolvers.twitter', 'resolvers.qiita', 'resolvers.gitlab']
-    resolvers = [importlib.import_module(r) for r in resolvers]
+    resolvers = [wrap_resolver(importlib.import_module(r)) for r in resolvers]
 
     client = SlackClient(os.environ['SLACK_BOT_TOKEN'])
     logger.info('Connecting...')
@@ -25,12 +46,8 @@ def main():
             for event in client.rtm_read():
                 logger.debug(event)
                 if event.get('type') == 'message' and event.get('text'):
-                    try:
-                        for resolver in resolvers:
-                            threading.Thread(target=resolver.resolve, args=(client, event)).start()
-                    except Exception as e:
-                        logger.exception(e)
-                        client.rtm_send_message(event['channel'], str(e))
+                    for resolver in resolvers:
+                        threading.Thread(target=resolver, args=(client, event)).start()
         except Exception as e:
             logger.exception(e)
             time.sleep(10)

@@ -8,7 +8,7 @@ from . import skip_bot_message
 
 
 @skip_bot_message
-def resolve(client, event):
+def resolve(post_message, event):
     GITLAB_DOMAIN = os.environ['GITLAB_DOMAIN']
     ids = re.findall(f'{GITLAB_DOMAIN}/(.+)/(issues|merge_requests)/(\d+)', event['text'])
     for project, issue_type, issue_id in ids:
@@ -17,9 +17,7 @@ def resolve(client, event):
             f'{GITLAB_DOMAIN}/api/v4/projects/{project_id}/{issue_type}/{issue_id}',
             headers={'PRIVATE-TOKEN': os.environ['GITLAB_TOKEN']}
         ).json()
-        client.api_call(
-            'chat.postMessage',
-            channel=event['channel'],
+        post_message(
             attachments=[{
                 'color': '#eb763d',
                 'title': f"[{project}]{issue['title']}",

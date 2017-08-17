@@ -7,7 +7,7 @@ from . import skip_bot_message
 
 
 @skip_bot_message
-def resolve(client, event):
+def resolve(post_message, event):
     consumer_key = os.environ['TWITTER_CONSUMER_KEY']
     consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
     auth = tweepy.AppAuthHandler(consumer_key, consumer_secret)
@@ -30,8 +30,4 @@ def resolve(client, event):
                 'title': media['media_url_https'],
                 'image_url': media['media_url_https'],
             })
-        client.api_call(
-            'chat.postMessage',
-            channel=event['channel'],
-            attachments=attachments
-        )
+        post_message(attachments=attachments)
