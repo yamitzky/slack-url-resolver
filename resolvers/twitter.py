@@ -21,10 +21,14 @@ def resolve(post_message, event):
             'author_link': f'https://twitter.com/{status.user.screen_name}',
             'author_icon': f'https://twitter.com/{status.user.screen_name}/profile_image',
         }]
-        for media in status.extended_entities.get('media', []):
-            attachments.append({
-                'color': '#55acee',
-                'title': media['media_url_https'],
-                'image_url': media['media_url_https'],
-            })
+        if hasattr(status, 'extended_entities'):
+            for media in status.extended_entities.get('media', []):
+                title = media['media_url_https']
+                if media['type'] == 'video':
+                    title = f":movie_camera: \n{title}"
+                attachments.append({
+                    'color': '#55acee',
+                    'title': title,
+                    'image_url': media['media_url_https'],
+                })
         post_message(attachments=attachments)
