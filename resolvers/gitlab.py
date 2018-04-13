@@ -7,7 +7,7 @@ import requests
 from . import skip_bot_message
 
 
-GITLAB_DOMAIN = os.environ['GITLAB_DOMAIN']
+GITLAB_DOMAIN = os.environ.get('GITLAB_DOMAIN', '')
 GITLAB_ID_PATTERN = re.compile(f'{GITLAB_DOMAIN}/(.+)/(issues|merge_requests)/(\d+)')
 COMMENT_PATTERN = re.compile(r'''<!--.*?-->''', re.MULTILINE | re.DOTALL)
 
