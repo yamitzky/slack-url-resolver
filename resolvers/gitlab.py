@@ -22,9 +22,14 @@ def resolve(post_message, event):
                 'color': '#eb763d',
                 'title': f"[{project}]{issue['title']}",
                 'title_link': issue['web_url'],
-                'text': issue['description'],
+                'text': trim_html_comment(issue['description']),
                 'author_name': issue['author']['name'],
                 'author_icon': issue['author'].get('avatar_url'),
                 'author_link': issue['author']['web_url'],
             }]
         )
+
+def trim_html_comment(html):
+    COMMENT_PATTERN = re.compile(r'''<!--.*?-->''')
+    return COMMENT_PATTERN.sub('', html)
+    
