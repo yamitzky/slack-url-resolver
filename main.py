@@ -14,14 +14,22 @@ def wrap_resolver(resolver):
     def wrapper(client, event):
         def post_message(**message):
             payload = {k: v for k, v in message.items()}
-            if 'channel' not in message:
-                payload['channel'] = event['channel']
-                if 'thread_ts' not in message and 'thread_ts' in event:
-                    payload['thread_ts'] = event['thread_ts']
-            client.api_call(
-                'chat.postMessage',
-                **payload
-            )
+            if 'thread_ts' not in message and 'thread_ts' in event:
+                payload['thread_ts'] = event['thread_ts']
+            if payload.get('file') or payload.get('content'):
+                if 'channels' not in message:
+                    payload['channels'] = [event['channel']]
+                client.api_call(
+                    'files.upload',
+                    **payload
+                )
+            else:
+                if 'channel' not in message:
+                    payload['channel'] = event['channel']
+                client.api_call(
+                    'chat.postMessage',
+                    **payload
+                )
 
         try:
             resolver.resolve(post_message, event)
@@ -44,7 +52,7 @@ def main():
     while True:
         try:
             for event in client.rtm_read():
-                logger.debug(event)
+                logger.error(event)
                 if event.get('type') == 'message' and event.get('text'):
                     for resolver in resolvers:
                         threading.Thread(target=resolver, args=(client, event)).start()
